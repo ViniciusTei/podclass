@@ -8,12 +8,12 @@ class DataBase:
 
     def createTable(self):
         #create table
-        self.cursor.execute('''CREATE TABLE podcast
-                      (title, link, summary, image, author, total_episodes)''')
-        self.cursor.execute('''CREATE TABLE feed
-                      (title, link, summary, image, author)''')
+        # self.cursor.execute('''CREATE TABLE podcast
+        #               (title, link, summary, image, author, total_episodes)''')
+        self.cursor.execute('''CREATE TABLE episodes
+                      (title, url, description, thumbnail, members, duration, published_at)''')
     
-    def initDataBase(self, feed_url):
+    def insertRssFeed(self, feed_url):
         # NewsFeed = feedparser.parse("https://anchor.fm/s/fa5d110/podcast/rss")
         # NewsFeed = feedparser.parse("https://desabilitado.com.br/thshow/feed.xml")
         NewsFeed = FeedRss(feed_url)
@@ -28,6 +28,34 @@ class DataBase:
         self.cursor.executemany("insert into feed values (?, ?, ?, ?, ?)", feed)
         self.connection.commit()
     
-    def select(self):
+    def selectAllPodcasts(self):
         self.cursor.execute("select * from podcast")
-        print(self.cursor.fetchall())
+        response = self.cursor.fetchall()
+        dictionary = []
+        for i in range(len(response)):
+                dictionary.append({
+                   "title": response[i][0],
+                   "link": response[i][1],
+                   "summary": response[i][2],
+                   "image": response[i][3],
+                   "author": response[i][4],
+                   "total_episodes": response[i][5],
+                })
+        
+        return dictionary
+    
+    def selectAllEpisodes(self):
+        self.cursor.execute("select * from feed")
+        response = self.cursor.fetchall()
+        dictionary = []
+        for i in range(len(response)):
+                dictionary.append({
+                   "title": response[i][0],
+                   "link": response[i][1],
+                   "summary": response[i][2],
+                   "image": response[i][3],
+                   "author": response[i][4],
+                   "total_episodes": response[i][5],
+                })
+        
+        return dictionary
