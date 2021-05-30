@@ -75,7 +75,7 @@ class DataBase:
                 "published": response[i][3],
                 "thumbnail": response[i][4],
                 "description": response[i][5],
-                "file": json.loads(response[i][6]),
+                "file": response[i][6],
             })
         
         return dictionary
