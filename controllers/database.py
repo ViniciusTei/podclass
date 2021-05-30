@@ -79,3 +79,22 @@ class DataBase:
             })
         
         return dictionary
+    
+    def selectEpisodeById(self, id):
+        self.cursor.execute("SELECT * FROM episode WHERE id=?", (id,))
+        response = self.cursor.fetchall()
+        dictionary = []
+        
+        for i in range(len(response)):
+            
+            dictionary.append({
+                "id": response[i][0],
+                "title": response[i][1],
+                "members": json.loads(response[i][2]),
+                "published": response[i][3],
+                "thumbnail": response[i][4],
+                "description": response[i][5],
+                "file": response[i][6],
+            })
+        
+        return dictionary

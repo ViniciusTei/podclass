@@ -30,6 +30,20 @@ def podcast():
     else:
        return getPodcasts() 
 
+
+@app.route("/episodes/<string:id>", methods=['GET'])
+def episodeById(id):
+    
+    db = DataBase('podcasts.db')
+    response = db.selectEpisodeById(id)
+    
+    res = make_response(jsonify({
+        "message": "Success",
+        "data": response
+    }), 200)
+    res.headers['Content-Type'] = "application/json"
+    return res
+
 @app.route("/episodes", methods=['GET'])
 def episodes():
     limit = request.args.get('limit', default = 20, type = int)
@@ -44,6 +58,7 @@ def episodes():
     }), 200)
     res.headers['Content-Type'] = "application/json"
     return res
+
 
 if __name__ == '__main__':
     app.run()
