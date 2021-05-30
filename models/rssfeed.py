@@ -4,8 +4,6 @@ import uuid
 class FeedRss:
     def __init__(self, url):
         response = feedparser.parse(url)
-        print("Version do feed: ")
-        print(response.version)
         self.podcast = {
             "id": uuid.uuid4().hex,
             "title": response.feed.title,
@@ -27,9 +25,10 @@ class FeedRss:
                 "published": response.entries[i].published,
                 "thumbnail": response.entries[i].image.href,
                 "description": response.entries[i].summary,
-                "file": response.entries[i].links[1],
+                "file": response.entries[i].links[1].href,
                 "podcast_id": self.podcast['id']
             })
+        
         self.episodes = episodes_list
            
         

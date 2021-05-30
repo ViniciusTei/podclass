@@ -9,10 +9,12 @@ Nesse arquivo voce encontra a documentação para todas as rotas criadas ate ago
 ### /podcast
 
 #### GET
+Retorna uma lista de todos os podcasts no banco.
+
 @Returns a list of podcasts
 ```json
 {
-    "id": "uuidv4",
+    "id": "string",
     "title": "string",
     "link": "string",
     "authors": "string",
@@ -24,7 +26,8 @@ Nesse arquivo voce encontra a documentação para todas as rotas criadas ate ago
 }
 ```
 #### POST
-Insert a new feed rss
+Adiciona um novo feed ao banco.
+
 @Receive a body with a rss url
 ```json
 {
@@ -49,17 +52,21 @@ Insert a new feed rss
 ### /episodes
 
 #### GET
-Get all episodes available
+Retorna uma lista de todos os episódios disponíveis.
+
+Você pode chamar essa forma passando os parametros de paginação `limit` e `offset`. <br >
+Da forma: `/episodes?limit=10&offset=2` <br >
+Se não for passado os parametros o padrão é `?limit=20&offset=1`
 
 @Returns a list of episodes
 ```json
 {
-    "id": "string",
+    "id": "string", 
     "title": "string",
     "members": "string",
     "published": "string",
     "thumbnail": "string",
     "description": "string",
-    "file": "object",
+    "file": "string",
     "podcast_id": "string"
 }

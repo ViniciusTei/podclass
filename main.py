@@ -1,4 +1,4 @@
-from database import DataBase 
+from controllers.database import DataBase 
 from flask import Flask, request, make_response, jsonify
 
 app = Flask(__name__)
@@ -32,8 +32,11 @@ def podcast():
 
 @app.route("/episodes", methods=['GET'])
 def episodes():
+    limit = request.args.get('limit', default = 20, type = int)
+    offset = request.args.get('offset', default = 1, type = int)
+
     db = DataBase('podcasts.db')
-    response = db.selectAllEpisodes()
+    response = db.selectAllEpisodes(limit, offset)
     
     res = make_response(jsonify({
         "message": "Success",
