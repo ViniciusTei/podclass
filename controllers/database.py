@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-from rssfeed import FeedRss
+from models.rssfeed import FeedRss
 
 class DataBase:
     def __init__(self, db_name):

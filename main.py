@@ -1,4 +1,4 @@
-from database import DataBase 
+from controllers.database import DataBase 
 from flask import Flask, request, make_response, jsonify
 
 app = Flask(__name__)
