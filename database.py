@@ -1,5 +1,6 @@
 import sqlite3
 import json
+
 from rssfeed import FeedRss
 
 class DataBase:
@@ -36,7 +37,7 @@ class DataBase:
                 NewsFeed.episodes[i]['published'],
                 NewsFeed.episodes[i]['thumbnail'],
                 NewsFeed.episodes[i]['description'],
-                json.dumps(NewsFeed.episodes[i]['file']),
+                NewsFeed.episodes[i]['file'],
                 NewsFeed.episodes[i]['podcast_id']))
         self.connection.commit()
         return NewsFeed.podcast
@@ -46,34 +47,35 @@ class DataBase:
         response = self.cursor.fetchall()
         dictionary = []
         for i in range(len(response)):
-                dictionary.append({
-                   "id": response[i][0],
-                    "title": response[i][1],
-                    "link": response[i][2],
-                    "authors": response[i][3],
-                    "language": response[i][4],
-                    "summary": response[i][5],
-                    "tags": json.loads(response[i][6]),
-                    "image_url": response[i][7],
-                    "total_episodes": response[i][8],
-                })
+            dictionary.append({
+                "id": response[i][0],
+                "title": response[i][1],
+                "link": response[i][2],
+                "authors": response[i][3],
+                "language": response[i][4],
+                "summary": response[i][5],
+                "tags": json.loads(response[i][6]),
+                "image_url": response[i][7],
+                "total_episodes": response[i][8],
+            })
         
         return dictionary
     
-    def selectAllEpisodes(self):
-        self.cursor.execute("select * from episode")
+    def selectAllEpisodes(self, limit, offset):
+        self.cursor.execute("select * from episode limit ? offset ?", (limit, offset))
         response = self.cursor.fetchall()
         dictionary = []
         
         for i in range(len(response)):
-                dictionary.append({
-                    "id": response[i][0],
-                    "title": response[i][1],
-                    "members": json.loads(response[i][2]),
-                    "published": response[i][3],
-                    "thumbnail": response[i][4],
-                    "description": response[i][5],
-                    "file": json.loads(response[i][6]),
-                })
+            
+            dictionary.append({
+                "id": response[i][0],
+                "title": response[i][1],
+                "members": json.loads(response[i][2]),
+                "published": response[i][3],
+                "thumbnail": response[i][4],
+                "description": response[i][5],
+                "file": json.loads(response[i][6]),
+            })
         
         return dictionary
