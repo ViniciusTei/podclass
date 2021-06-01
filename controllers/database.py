@@ -1,6 +1,6 @@
 import sqlite3
 import json
-
+import uuid
 from models.rssfeed import FeedRss
 
 class DataBase:
@@ -14,6 +14,8 @@ class DataBase:
                       (id, title, link, authors, language, summary, tags, image_url, total_episodes)''')
         self.cursor.execute('''CREATE TABLE if not exists episode
                       (id, title, members, published, thumbnail, description, file, podcast_id)''')
+        self.cursor.execute('''CREATE TABLE if not exists avaliation
+                        (id, user_id, episode_id, rate)''')
     
     def insertRssFeed(self, feed_url):
         NewsFeed = FeedRss(feed_url)
@@ -78,6 +80,14 @@ class DataBase:
                 "file": response[i][6],
             })
         
+        self.cursor.execute("select * from avaliation limit ? offset ?", (limit, offset))
+        response = self.cursor.fetchall()
+        for i in range(len(dictionary)):
+            for j in range(len(response)):
+                if(dictionary.id == response[j][2]):
+                    dictionary[i].avaliation = response[j][3]
+                else:
+                    dictionary[i].avaliation = 0
         return dictionary
     
     def selectEpisodeById(self, id):
@@ -98,3 +108,27 @@ class DataBase:
             })
         
         return dictionary
+    
+    def createAvaliation(self, user_id, episode_id, rate):
+        self.createTable()
+        self.cursor.execute("select * from avaliation where episode_id=?", (episode_id,))
+        avaliations = self.cursor.fetchall()
+        if(avaliations):
+            avaliation_id = avaliations[0][0]
+            self.cursor.execute("update avaliation set rate=? where episode_id=?", (rate, episode_id,))
+            self.connection.commit()
+
+        else:    
+            avaliation_id = uuid.uuid4().hex
+            self.cursor.execute("insert into avaliation values (?, ?, ?, ?)", (
+                avaliation_id,
+                user_id,
+                episode_id,
+                rate
+                ))
+            self.connection.commit()
+        return avaliation_id
+
+    def getAvaliations(self):
+        self.cursor.execute("select * from avaliation ")
+        return self.cursor.fetchall()
