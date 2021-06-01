@@ -70,3 +70,53 @@ Se não for passado os parametros o padrão é `?limit=20&offset=1`
     "file": "string",
     "podcast_id": "string"
 }
+```
+
+### /episodes/<:id>
+
+#### GET
+Retorna uma lista de todos os episódios disponíveis com aquele respectivo id.
+
+Você pode chamar essa forma passando os parametros de paginação `limit` e `offset`. <br >
+Da forma: `/episodes?limit=10&offset=2` <br >
+Se não for passado os parametros o padrão é `?limit=20&offset=1`
+
+@Returns a list of episodes
+```json
+{
+    "id": "string", 
+    "title": "string",
+    "members": "string",
+    "published": "string",
+    "thumbnail": "string",
+    "description": "string",
+    "file": "string",
+    "podcast_id": "string"
+}
+```
+
+### /avaliation
+
+#### GET
+Retorna uma lista de avaliacoes
+
+@Retuns
+```json
+{
+    "avaliation_id": "string",
+    "episode_id": "string",
+    "rate": "number"
+}
+```
+
+#### POST
+Cria uma nova avaliacao, a nota da avaliacao varia de 0 a 5.
+
+@Receive a body with data
+```json
+{
+    "user_id": "string",
+    "episode_id": "string",
+    "rate": "number"
+}
+```

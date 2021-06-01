@@ -2,7 +2,6 @@ from controllers.database import DataBase
 from flask import Flask, request, make_response, jsonify
 
 app = Flask(__name__)
-
 def getPodcasts():
     db = DataBase('podcasts.db')
     response = db.selectAllPodcasts()
@@ -57,6 +56,43 @@ def episodes():
         "data": response
     }), 200)
     res.headers['Content-Type'] = "application/json"
+    return res
+
+@app.route("/avaliation", methods=['GET','POST'])
+def avaliation():
+    if(request.method == 'GET'):
+        global_db = DataBase('podcasts.db')
+        avaliation = global_db.getAvaliations()
+
+        res = make_response(jsonify({
+            "message": "Success",
+            "data": {
+                "avaliations": avaliation
+            }
+        }), 200)
+        res.headers['Content-Type'] = "application/json" 
+        return res
+
+    if(request.method == 'POST'):
+        global_db = DataBase('podcasts.db')
+        episode_id = request.json['episode_id']
+        rate = request.json['rate']
+        print(episode_id, rate)
+        avaliation = global_db.createAvaliation(0, episode_id, rate)
+
+        res = make_response(jsonify({
+            "message": "Success",
+            "data": {
+                "avaliation_id": avaliation
+            }
+        }), 200)
+        res.headers['Content-Type'] = "application/json" 
+        return res
+    
+    res = make_response(jsonify({
+        "message": "Error! Invalid method"
+    }), 400)
+    res.headers['Content-Type'] = "application/json" 
     return res
 
 
