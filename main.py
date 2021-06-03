@@ -77,7 +77,17 @@ def avaliation():
         global_db = DataBase('podcasts.db')
         episode_id = request.json['episode_id']
         rate = request.json['rate']
-        print(episode_id, rate)
+        
+        if(rate < 0 or rate > 5):
+            res = make_response(jsonify({
+                "message": "Rate out of range",
+                "data": {
+                    "message": "Avaliacao deve estar entre 0 e 5!"
+                }
+            }), 400)
+            res.headers['Content-Type'] = "application/json" 
+            return res
+        
         avaliation = global_db.createAvaliation(0, episode_id, rate)
 
         res = make_response(jsonify({
@@ -91,7 +101,7 @@ def avaliation():
     
     res = make_response(jsonify({
         "message": "Error! Invalid method"
-    }), 400)
+    }), 405)
     res.headers['Content-Type'] = "application/json" 
     return res
 
