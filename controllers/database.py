@@ -77,17 +77,16 @@ class DataBase:
                 "thumbnail": response[i][4],
                 "description": response[i][5],
                 "file": response[i][6],
+                "avaliation": 0
             })
         
-        self.cursor.execute("select * from avaliation limit ? offset ?", (limit, offset))
+        self.cursor.execute("select * from avaliation ")
         response = self.cursor.fetchall()
         
         for i in range(len(dictionary)):
             for j in range(len(response)):
                 if(dictionary[i]['id'] == response[j][2]):
                     dictionary[i]['avaliation'] = response[j][3]
-                else:
-                    dictionary[i]['avaliation'] = 0
         return dictionary
     
     def selectEpisodeById(self, id):
