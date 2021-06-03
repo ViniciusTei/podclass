@@ -1,7 +1,10 @@
 from controllers.database import DataBase 
 from flask import Flask, request, make_response, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 def getPodcasts():
     db = DataBase('podcasts.db')
     response = db.selectAllPodcasts()
