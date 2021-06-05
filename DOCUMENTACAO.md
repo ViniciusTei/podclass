@@ -68,7 +68,8 @@ Se não for passado os parametros o padrão é `?limit=20&offset=1`
     "thumbnail": "string",
     "description": "string",
     "file": "string",
-    "podcast_id": "string"
+    "podcast_id": "string",
+    "avaliation": "number"
 }
 ```
 
@@ -91,7 +92,8 @@ Se não for passado os parametros o padrão é `?limit=20&offset=1`
     "thumbnail": "string",
     "description": "string",
     "file": "string",
-    "podcast_id": "string"
+    "podcast_id": "string",
+    "avaliation": "number"
 }
 ```
 

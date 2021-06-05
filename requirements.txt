@@ -1,9 +1,12 @@
 click==8.0.1
 feedparser==6.0.2
 Flask==2.0.1
+Flask-Cors==3.0.10
 gunicorn==20.1.0
 itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
+mutagen==1.45.1
 sgmllib3k==1.0.0
+six==1.16.0
 Werkzeug==2.0.1

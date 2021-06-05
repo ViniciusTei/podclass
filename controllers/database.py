@@ -64,10 +64,9 @@ class DataBase:
         return dictionary
     
     def selectAllEpisodes(self, limit, offset):
-        self.cursor.execute("select * from episode limit ? offset ?", (limit, offset))
+        self.cursor.execute("SELECT * FROM episode limit ? offset ?", (limit, offset))
         response = self.cursor.fetchall()
         dictionary = []
-        
         for i in range(len(response)):
             
             dictionary.append({
@@ -78,20 +77,20 @@ class DataBase:
                 "thumbnail": response[i][4],
                 "description": response[i][5],
                 "file": response[i][6],
+                "avaliation": 0
             })
         
-        self.cursor.execute("select * from avaliation limit ? offset ?", (limit, offset))
+        self.cursor.execute("select * from avaliation ")
         response = self.cursor.fetchall()
+        
         for i in range(len(dictionary)):
             for j in range(len(response)):
-                if(dictionary.id == response[j][2]):
-                    dictionary[i].avaliation = response[j][3]
-                else:
-                    dictionary[i].avaliation = 0
+                if(dictionary[i]['id'] == response[j][2]):
+                    dictionary[i]['avaliation'] = response[j][3]
         return dictionary
     
     def selectEpisodeById(self, id):
-        self.cursor.execute("SELECT * FROM episode WHERE id=?", (id,))
+        self.cursor.execute("SELECT * FROM episode WHERE episode.id=? ", (id,))
         response = self.cursor.fetchall()
         dictionary = []
         
@@ -106,10 +105,19 @@ class DataBase:
                 "description": response[i][5],
                 "file": response[i][6],
             })
+        self.cursor.execute("select * from avaliation WHERE episode_id=?", (id,))
+        response = self.cursor.fetchall()
+        
+        for i in range(len(dictionary)):
+            for j in range(len(response)):
+                if(dictionary[i]['id'] == response[j][2]):
+                    dictionary[i]['avaliation'] = response[j][3]
+                else:
+                    dictionary[i]['avaliation'] = 0
         
         return dictionary
     
-    def createAvaliation(self, user_id, episode_id, rate):
+    def createAvaliation(self, user_id, episode_id, rate): 
         self.createTable()
         self.cursor.execute("select * from avaliation where episode_id=?", (episode_id,))
         avaliations = self.cursor.fetchall()
