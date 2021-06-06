@@ -1,19 +1,33 @@
-from controllers.database import DataBase 
 from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
+
+from controllers.database import DataBase 
 
 app = Flask(__name__)
 CORS(app)
 
 def getPodcasts():
     db = DataBase('podcasts.db')
-    response = db.selectAllPodcasts()
-    res = make_response(jsonify({
-        "message": "Success",
-        "data": response
-    }), 200)
-    res.headers['Content-Type'] = "application/json"
-    return res
+    userId = request.json['userId']
+    if(userId):
+        response = db.selectAllPodcastsByUserId(userId)
+    else:
+        response = db.selectAllPodcasts()
+    
+    if(response):
+        res = make_response(jsonify({
+            "message": "Success",
+            "data": response
+        }), 200)
+        res.headers['Content-Type'] = "application/json"
+        return res
+    else:
+        res = make_response(jsonify({
+            "message": "Error!",
+            "data": 'Nao pudemos encontrar nenhum podcast.'
+        }), 404)
+        res.headers['Content-Type'] = "application/json"
+        return res
 
 def postPodcast():
     db = DataBase('podcasts.db')
@@ -27,7 +41,7 @@ def postPodcast():
 
 @app.route("/podcasts", methods=['GET', 'POST'])
 def podcast():
-    if(request.json):
+    if(request.method == 'POST'):
         return postPodcast()
     else:
        return getPodcasts() 
@@ -107,6 +121,49 @@ def avaliation():
     }), 405)
     res.headers['Content-Type'] = "application/json" 
     return res
+
+@app.route("/user", methods=['GET','POST'])
+def user():
+    db = DataBase('podcasts.db')
+    if(request.method == 'GET'):
+        users = db.getUsers()
+        if(users):
+            res = make_response(jsonify({
+                "message": "Success",
+                "data": {
+                    "users": users
+                }
+            }), 200)
+            res.headers['Content-Type'] = "application/json" 
+            return res
+    if(request.method == 'POST'):
+        if(request.json['userId'] and
+            request.json['name'] and
+            request.json['email'] and
+            request.json['image']):
+            id = db.createUser(
+                request.json['userId'],
+                request.json['name'],
+                request.json['email'],
+                request.json['image']
+            )
+
+            res = make_response(jsonify({
+                "message": "Success",
+                "data": {
+                    "user_id": id
+                }
+            }), 200)
+            res.headers['Content-Type'] = "application/json" 
+            return res
+        else:
+            res = make_response(jsonify({
+                "message": "Error! Missing user information"
+            }), 400)
+            res.headers['Content-Type'] = "application/json" 
+            return res
+    
+
 
 
 if __name__ == '__main__':
