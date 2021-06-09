@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import uuid
-from models.rssfeed import FeedRss
+from models.rssfeed import FeedRss, checkLastEpisode
 
 class DataBase:
     def __init__(self, db_name):
@@ -101,6 +101,23 @@ class DataBase:
                 "file": response[i][6],
                 "avaliation": 0
             })
+        
+        ep = checkLastEpisode(dictionary[0], response[0][7])
+        
+        if(len(ep) > 1):
+            for i in range(len(ep)):
+                dictionary.insert(0, ep[i])
+            
+                self.cursor.execute("INSERT into episode values (?, ?, ?, ?, ?, ?, ?, ?)", 
+                (ep[i]['id'],
+                    ep[i]['title'],
+                    json.dumps(ep[i]['members']),
+                    ep[i]['published'],
+                    ep[i]['thumbnail'],
+                    ep[i]['description'],
+                    ep[i]['file'],
+                    ep[i]['podcast_id']))
+                self.connection.commit()
         
         self.cursor.execute("select * from avaliation ")
         response = self.cursor.fetchall()

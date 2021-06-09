@@ -162,8 +162,6 @@ def user():
             }), 400)
             res.headers['Content-Type'] = "application/json" 
             return res
-    
-
 
 
 if __name__ == '__main__':
