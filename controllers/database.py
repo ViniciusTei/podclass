@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import uuid
-from models.rssfeed import FeedRss
+from models.rssfeed import FeedRss, checkLastEpisode
 
 class DataBase:
     def __init__(self, db_name):
@@ -11,16 +11,18 @@ class DataBase:
     def createTable(self):
         #create table
         self.cursor.execute('''CREATE TABLE if not exists podcast
-                      (id, title, link, authors, language, summary, tags, image_url, total_episodes)''')
+                      (id, title, link, authors, language, summary, tags, image_url, total_episodes, user_id)''')
         self.cursor.execute('''CREATE TABLE if not exists episode
                       (id, title, members, published, thumbnail, description, file, podcast_id)''')
         self.cursor.execute('''CREATE TABLE if not exists avaliation
                         (id, user_id, episode_id, rate)''')
+        self.cursor.execute('''CREATE TABLE if not exists user
+                        (id, email, name, image)''')
     
-    def insertRssFeed(self, feed_url):
+    def insertRssFeed(self, feed_url, userId):
         NewsFeed = FeedRss(feed_url)
         self.createTable()
-        self.cursor.execute("insert into podcast values (?, ?, ?, ?, ?, ?, ?, ?, ?)", (
+        self.cursor.execute("insert into podcast values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (
             NewsFeed.podcast['id'], 
             NewsFeed.podcast['title'], 
             NewsFeed.podcast['link'], 
@@ -29,7 +31,8 @@ class DataBase:
             NewsFeed.podcast['summary'], 
             json.dumps(NewsFeed.podcast['tags']),
             NewsFeed.podcast['image_url'],
-            NewsFeed.podcast['total_episodes']))
+            NewsFeed.podcast['total_episodes'],
+            userId))
 
         for i in range(NewsFeed.podcast['total_episodes']):
             self.cursor.execute("insert into episode values (?, ?, ?, ?, ?, ?, ?, ?)", 
@@ -46,6 +49,25 @@ class DataBase:
     
     def selectAllPodcasts(self):
         self.cursor.execute("select * from podcast")
+        response = self.cursor.fetchall()
+        dictionary = []
+        for i in range(len(response)):
+            dictionary.append({
+                "id": response[i][0],
+                "title": response[i][1],
+                "link": response[i][2],
+                "authors": response[i][3],
+                "language": response[i][4],
+                "summary": response[i][5],
+                "tags": json.loads(response[i][6]),
+                "image_url": response[i][7],
+                "total_episodes": response[i][8],
+            })
+        
+        return dictionary
+
+    def selectAllPodcastsByUserId(self, userId):
+        self.cursor.execute("select * from podcast where user_id=?", (userId,))
         response = self.cursor.fetchall()
         dictionary = []
         for i in range(len(response)):
@@ -79,6 +101,23 @@ class DataBase:
                 "file": response[i][6],
                 "avaliation": 0
             })
+        
+        ep = checkLastEpisode(dictionary[0], response[0][7])
+        
+        if(len(ep) > 1):
+            for i in range(len(ep)):
+                dictionary.insert(0, ep[i])
+            
+                self.cursor.execute("INSERT into episode values (?, ?, ?, ?, ?, ?, ?, ?)", 
+                (ep[i]['id'],
+                    ep[i]['title'],
+                    json.dumps(ep[i]['members']),
+                    ep[i]['published'],
+                    ep[i]['thumbnail'],
+                    ep[i]['description'],
+                    ep[i]['file'],
+                    ep[i]['podcast_id']))
+                self.connection.commit()
         
         self.cursor.execute("select * from avaliation ")
         response = self.cursor.fetchall()
@@ -140,3 +179,25 @@ class DataBase:
     def getAvaliations(self):
         self.cursor.execute("select * from avaliation ")
         return self.cursor.fetchall()
+     
+    def createUser(self, id, name, email, image):
+        self.createTable()
+        self.cursor.execute("insert into user values (?, ?, ?, ?)",(id, name, email, image))
+        self.connection.commit()
+        
+        return id
+    
+    def getUsers(self):
+        self.cursor.execute("select * from user")
+        response = self.cursor.fetchall()
+        dictionary = []
+        
+        for i in range(len(response)):
+            dictionary.append({
+                "id": response[i][0],
+                "name": response[i][1],
+                "email": response[i][2],
+                "image": response[i][3],
+            })
+        return dictionary
+         
