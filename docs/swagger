@@ -1,0 +1,356 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Feed your podcast from rss",
+    "version" : "1.0.0",
+    "title" : "Podcast API",
+    "contact" : {
+      "email" : "viniciustprates@gmail.com"
+    },
+    "license" : {
+      "name" : "MIT License",
+      "url" : "https://github.com/ViniciusTei/podcast-api/blob/master/LICENSE"
+    }
+  },
+  "host" : "165.232.126.168",
+  "basePath" : "/v1",
+  "tags" : [ {
+    "name" : "session",
+    "description" : "User session calls"
+  }, {
+    "name" : "users",
+    "description" : "Operations to CRUD users"
+  }, {
+    "name" : "podcasts",
+    "description" : "Operation relatad to podcasts from a user"
+  }, {
+    "name" : "episodes",
+    "description" : "Operataions related to episodes"
+  } ],
+  "schemes" : [ "http" ],
+  "paths" : {
+    "/login" : {
+      "post" : {
+        "tags" : [ "session" ],
+        "summary" : "login a user to the app",
+        "description" : "By passing the appropriate email and password logs in a user\n",
+        "operationId" : "sessionLogin",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "description" : "pass a valid user email and password",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/UserLogin"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "User Successfuly logged in",
+            "schema" : {
+              "type" : "object",
+              "required" : [ "refresh_token", "token", "user" ],
+              "properties" : {
+                "token" : {
+                  "type" : "string",
+                  "example" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                },
+                "refresh_token" : {
+                  "type" : "string",
+                  "example" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                },
+                "user" : {
+                  "$ref" : "#/definitions/User"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    },
+    "/users" : {
+      "get" : {
+        "tags" : [ "users" ],
+        "summary" : "get all users",
+        "description" : "Get all users",
+        "operationId" : "getUsers",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Users retrieved",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/User"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "users" ],
+        "summary" : "create a user",
+        "description" : "Create a new user",
+        "operationId" : "postUser",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "description" : "pass users info",
+          "required" : false,
+          "schema" : {
+            "type" : "object",
+            "required" : [ "email", "name", "password" ],
+            "properties" : {
+              "name" : {
+                "type" : "string",
+                "example" : "Jon Doe"
+              },
+              "email" : {
+                "type" : "string",
+                "example" : "example@email.com"
+              },
+              "password" : {
+                "type" : "string",
+                "example" : "abc123"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "User created!",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/podcasts/{id}" : {
+      "post" : {
+        "tags" : [ "podcasts" ],
+        "summary" : "create a new podcasts to a user",
+        "description" : "Init a new podcast to a user",
+        "operationId" : "postPodcast",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "user id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "type" : "object",
+            "required" : [ "rssFeed" ],
+            "properties" : {
+              "rssFeed" : {
+                "type" : "string",
+                "example" : "https://example.com/rss"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Podcast created"
+          },
+          "400" : {
+            "description" : "Invalid call"
+          },
+          "403" : {
+            "description" : "Error trying to save the podcast"
+          }
+        }
+      }
+    },
+    "/episodes/{id}" : {
+      "get" : {
+        "tags" : [ "episodes" ],
+        "summary" : "get most recent episodes",
+        "description" : "Get the most recent episodes from a user",
+        "operationId" : "getEpisodes",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "user id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Defines the number of items on a page",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Specifies the page number of the episodes to show",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Got episodes",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Episode"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/episodes/latest/{id}" : {
+      "get" : {
+        "tags" : [ "episodes" ],
+        "summary" : "get two latest episodes",
+        "description" : "Get the two most recent episodes from a user",
+        "operationId" : "getLatestEpisodes",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "user id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Got episodes",
+            "schema" : {
+              "$ref" : "#/definitions/Episode"
+            }
+          }
+        }
+      }
+    },
+    "/episodes/{id}/detail" : {
+      "get" : {
+        "tags" : [ "episodes" ],
+        "summary" : "get two latest episodes",
+        "description" : "Get the two most recent episodes from a user",
+        "operationId" : "getOneEpisode",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "user id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "episodeId",
+          "required" : false,
+          "schema" : {
+            "type" : "object",
+            "required" : [ "episodeId" ],
+            "properties" : {
+              "episodeId" : {
+                "type" : "string",
+                "example" : "asbawse123"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Got episodes",
+            "schema" : { }
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "UserLogin" : {
+      "type" : "object",
+      "required" : [ "email", "password" ],
+      "properties" : {
+        "email" : {
+          "type" : "string",
+          "format" : "email",
+          "example" : "example@email.com"
+        },
+        "password" : {
+          "type" : "string",
+          "format" : "string",
+          "example" : "abc123"
+        }
+      }
+    },
+    "User" : {
+      "required" : [ "_id", "email", "name" ],
+      "properties" : {
+        "_id" : {
+          "type" : "string",
+          "example" : "d701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "ACME Corporation"
+        },
+        "email" : {
+          "type" : "string",
+          "format" : "email",
+          "example" : "example@email.com"
+        }
+      }
+    },
+    "Episode" : {
+      "required" : [ "_id", "audioLength", "audioUrl", "description", "members", "releaseDate", "thumbnail", "title" ],
+      "properties" : {
+        "_id" : {
+          "type" : "string",
+          "example" : "d701748f0851"
+        },
+        "title" : {
+          "type" : "string",
+          "example" : "Podcast"
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "My awasome podcast"
+        },
+        "audioUrl" : {
+          "type" : "string",
+          "example" : "https://example.com/file.mp3"
+        },
+        "audioLength" : {
+          "type" : "integer",
+          "example" : 2627,
+          "description" : "Audio length in seconds"
+        },
+        "releaseDate" : {
+          "type" : "string",
+          "example" : "2021-10-22T12:06:39+00:00",
+          "description" : "Release date in ISO format"
+        },
+        "thumbnail" : {
+          "type" : "string",
+          "example" : "https://example.com/file.png"
+        },
+        "members" : {
+          "type" : "string",
+          "example" : "Author"
+        }
+      }
+    }
+  }
+}
